@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: my-mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: Login
+    ports:
+      - "8080:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+
+  backend:
+    image: backend:latest  # Use the exact image name and tag you have
+    container_name: my-backend-container
+    environment:
+      PORT: 4000
+      DB_NAME: Login
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+      DB_HOST: db
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/backend
+
+  frontend:
+    image: frontend:latest  # Use the exact image name and tag you have
+    container_name: my-frontend-container
+    environment:
+      PORT: 3000
+      BACKEND_URL: http://backend:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/frontend
+
+volumes:
+  db-data:
